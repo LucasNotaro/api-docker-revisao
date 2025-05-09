@@ -44,6 +44,19 @@ app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 /**
  * @swagger
+ * /status:
+ *   get:
+ *     summary: Verifica se a API está online
+ *     responses:
+ *       200:
+ *         description: API está online
+ */
+app.get('/status', (req, res) => {
+  res.send('API online');
+});
+
+/**
+ * @swagger
  * /users:
  *   get:
  *     summary: Lista todos os usuários
