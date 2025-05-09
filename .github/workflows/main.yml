@@ -112,6 +112,17 @@ jobs:
           git tag v${{ env.new_version }}
           git push origin HEAD --tags
 
+          - name: Login no Docker Hub
+          if: ${{ github.event_name != 'pull_request' && env.new_version != env.current_version }}
+          run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USER }}" --password-stdin
+
+          - name: Build da imagem Docker com tag da versão
+          if: ${{ github.event_name != 'pull_request' && env.new_version != env.current_version }}
+          run: docker build -t ${{ secrets.DOCKERHUB_USER }}/img-api:${{ env.new_version }} .
+
+          - name: Push da imagem para o Docker Hub
+          if: ${{ github.event_name != 'pull_request' && env.new_version != env.current_version }}
+          run: docker push ${{ secrets.DOCKERHUB_USER }}/img-api:${{ env.new_version }}
 
       - name: Enviar e-mail falha
         if: failure()
