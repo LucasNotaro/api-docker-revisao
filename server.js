@@ -7,25 +7,28 @@ const port = 3000;
 
 const app = express();
 app.use(express.json());
+let db;
 
-const db = mysql.createConnection({
-  host: process.env.MYSQL_HOST,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE,
-  port: process.env.MYSQL_PORT
-});
+if (process.env.NODE_ENV !== 'test') {
+  db = mysql.createConnection({
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+    port: process.env.MYSQL_PORT
+  });
 
-db.connect(err => {
-  if (err) throw err;
-  console.log('Conectado ao MySQL!');
-  db.query(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      name VARCHAR(255),
-      email VARCHAR(255)
-    )`);
-});
+  db.connect(err => {
+    if (err) throw err;
+    console.log('Conectado ao MySQL!');
+    db.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255),
+        email VARCHAR(255)
+      )`);
+  });
+}
 
 const swaggerOptions = {
   swaggerDefinition: {
@@ -41,6 +44,9 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+module.exports = app;
+
 
 /**
  * @swagger
